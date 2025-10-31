@@ -1,0 +1,46 @@
+[
+  {
+    "id": "8079be1b",
+    "name": "saidi-saifi",
+    "query": "SELECT \n    CASE \n        WHEN il IN ('BURDUR', 'ISPARTA') THEN bolge2\n        WHEN UPPER(ilce) IN ('AKSEKİ', 'İBRADI', 'IBRADI') THEN 'AKSEKİ-İBRADI'\n        ELSE ilce\n    END AS ilce_bazi,\n\n    -- 🔹 SAIDI = (∑ SAIDI * 60) / 2522766\n    ROUND(\n        SUM(\n            CASE \n                WHEN sebebe_gore IN ('Şebeke işletmecisi', 'Dışsal')\n                     AND kaynaga_gore IN ('Dağıtım-OG', 'Dağıtım-AG')\n                     AND sureye_gore = 'Uzun'\n                     AND bildirime_gore = 'Bildirimsiz'\n                THEN saidi * 60.0\n                ELSE 0\n            END\n        ) / 2522766.0, 8\n    ) AS saidi,\n\n    -- 🔹 SAIFI = ∑ (SAIDI / KESINTI_SURESI_SAAT) / 2522766 (yalnızca şebeke işletmecisi)\n    ROUND(\n        SUM(\n            CASE \n                WHEN sebebe_gore = 'Şebeke işletmecisi'\n                     AND kaynaga_gore IN ('Dağıtım-OG', 'Dağıtım-AG')\n                     AND sureye_gore = 'Uzun'\n                     AND bildirime_gore = 'Bildirimsiz'\n                THEN saidi / kesinti_suresi_saat\n                ELSE 0\n            END\n        ) / 2522766.0, 8\n    ) AS saifi\n\nFROM tablo1\nWHERE \n    donem = '202509'\n\nGROUP BY ilce_bazi\nORDER BY \n    CASE ilce_bazi\n        WHEN 'ALANYA' THEN 1\n        WHEN 'GAZİPAŞA' THEN 2\n        WHEN 'GÜNDOĞMUŞ' THEN 3\n        WHEN 'ALANYA BÖLGE' THEN 4\n        WHEN 'MANAVGAT' THEN 5\n        WHEN 'SERİK' THEN 6\n        WHEN 'AKSEKİ-İBRADI' THEN 7\n        WHEN 'MANAVGAT BÖLGE' THEN 8\n        WHEN 'DEMRE' THEN 9\n        WHEN 'ELMALI' THEN 10\n        WHEN 'FİNİKE' THEN 11\n        WHEN 'KALKAN' THEN 12\n        WHEN 'KAŞ' THEN 13\n        WHEN 'KEMER' THEN 14\n        WHEN 'KORKUTELİ' THEN 15\n        WHEN 'KUMLUCA' THEN 16\n        WHEN 'BATI' THEN 17\n        WHEN 'AKSU' THEN 18\n        WHEN 'DÖŞEMEALTI' THEN 19\n        WHEN 'KEPEZ' THEN 20\n        WHEN 'KONYAALTI' THEN 21\n        WHEN 'MURATPAŞA' THEN 22\n        WHEN 'METROPOL' THEN 23\n        WHEN 'BURDUR 1. BÖLGE' THEN 24\n        WHEN 'BURDUR 2. BÖLGE' THEN 25\n        WHEN 'BURDUR 3. BÖLGE' THEN 26\n        WHEN 'BURDUR 4. BÖLGE' THEN 27\n        WHEN 'BURDUR' THEN 28\n        WHEN 'ISPARTA 1. BÖLGE' THEN 29\n        WHEN 'ISPARTA 2. BÖLGE' THEN 30\n        WHEN 'ISPARTA 3. BÖLGE' THEN 31\n        WHEN 'ISPARTA 4. BÖLGE' THEN 32\n        WHEN 'ISPARTA' THEN 33\n        WHEN 'AEDAŞ' THEN 34\n        ELSE 99\n    END;",
+    "description": "ilçe bazlı",
+    "category": "Genel",
+    "created_at": "2025-10-24T17:31:39.041846",
+    "updated_at": "2025-10-25T21:41:51.443233",
+    "usage_count": 3,
+    "last_used": "2025-10-25T21:17:52.625847"
+  },
+  {
+    "id": "02f91ec3",
+    "name": "performans",
+    "query": "SELECT \n    kriter_performans,\n    ROUND(SUM(sayi_performans), 3) AS toplam_sayi_performans\nFROM tablo1\nWHERE donem = '202509'\n  AND kademe = 1\nGROUP BY kriter_performans\nORDER BY toplam_sayi_performans DESC;",
+    "description": "icmal",
+    "category": "Genel",
+    "created_at": "2025-10-24T17:43:12.547829",
+    "updated_at": "2025-10-25T21:44:12.666739",
+    "usage_count": 3,
+    "last_used": "2025-10-25T21:40:39.000308"
+  },
+  {
+    "id": "3eac9eb2",
+    "name": "performans/ilce",
+    "query": "SELECT \n    CASE \n        WHEN il IN ('BURDUR', 'ISPARTA') THEN bolge2\n        WHEN UPPER(ilce) IN ('AKSEKİ', 'İBRADI', 'IBRADI') THEN 'AKSEKİ-İBRADI'\n        ELSE ilce\n    END AS ilce_bazi,\n\n    ROUND(SUM(sayi_performans), 3) AS toplam_sayi_performans\n\nFROM tablo1\nWHERE \n    donem = '202509'\n    AND kademe = 1\n    AND kriter_performans = 'BİLDİRİMSİZ'\n\nGROUP BY ilce_bazi\nORDER BY \n    CASE ilce_bazi\n        WHEN 'ALANYA' THEN 1\n        WHEN 'GAZİPAŞA' THEN 2\n        WHEN 'GÜNDOĞMUŞ' THEN 3\n        WHEN 'ALANYA BÖLGE' THEN 4\n        WHEN 'MANAVGAT' THEN 5\n        WHEN 'SERİK' THEN 6\n        WHEN 'AKSEKİ-İBRADI' THEN 7\n        WHEN 'MANAVGAT BÖLGE' THEN 8\n        WHEN 'DEMRE' THEN 9\n        WHEN 'ELMALI' THEN 10\n        WHEN 'FİNİKE' THEN 11\n        WHEN 'KALKAN' THEN 12\n        WHEN 'KAŞ' THEN 13\n        WHEN 'KEMER' THEN 14\n        WHEN 'KORKUTELİ' THEN 15\n        WHEN 'KUMLUCA' THEN 16\n        WHEN 'BATI' THEN 17\n        WHEN 'AKSU' THEN 18\n        WHEN 'DÖŞEMEALTI' THEN 19\n        WHEN 'KEPEZ' THEN 20\n        WHEN 'KONYAALTI' THEN 21\n        WHEN 'MURATPAŞA' THEN 22\n        WHEN 'METROPOL' THEN 23\n        WHEN 'BURDUR 1. BÖLGE' THEN 24\n        WHEN 'BURDUR 2. BÖLGE' THEN 25\n        WHEN 'BURDUR 3. BÖLGE' THEN 26\n        WHEN 'BURDUR 4. BÖLGE' THEN 27\n        WHEN 'BURDUR' THEN 28\n        WHEN 'ISPARTA 1. BÖLGE' THEN 29\n        WHEN 'ISPARTA 2. BÖLGE' THEN 30\n        WHEN 'ISPARTA 3. BÖLGE' THEN 31\n        WHEN 'ISPARTA 4. BÖLGE' THEN 32\n        WHEN 'ISPARTA' THEN 33\n        WHEN 'AEDAŞ' THEN 34\n        ELSE 99\n    END;",
+    "description": "İlçe Bazlı",
+    "category": "Genel",
+    "created_at": "2025-10-24T17:48:53.109597",
+    "updated_at": "2025-10-25T21:49:23.227748",
+    "usage_count": 4,
+    "last_used": "2025-10-27T18:24:43.647512"
+  },
+  {
+    "id": "367a4bd6",
+    "name": "arıza sayısı",
+    "query": "SELECT \n    CASE \n        WHEN il IN ('BURDUR', 'ISPARTA') THEN bolge2\n        WHEN UPPER(ilce) IN ('AKSEKİ', 'İBRADI', 'IBRADI') THEN 'AKSEKİ-İBRADI'\n        ELSE ilce\n    END AS ilce_bazi,\n\n    -- 🔹 Dağıtım-OG (ariza = 1 sayısı)\n    SUM(CASE WHEN kaynaga_gore = 'Dağıtım-OG' AND ariza = 1 THEN 1 ELSE 0 END) AS dagitim_og_ariza_sayisi,\n\n    -- 🔹 Dağıtım-AG (ariza = 1 sayısı)\n    SUM(CASE WHEN kaynaga_gore = 'Dağıtım-AG' AND ariza = 1 THEN 1 ELSE 0 END) AS dagitim_ag_ariza_sayisi\n\nFROM tablo1\nWHERE \n    donem = '202509'\n    AND kademe = 1\n\nGROUP BY ilce_bazi\nORDER BY \n    CASE ilce_bazi\n        WHEN 'ALANYA' THEN 1\n        WHEN 'GAZİPAŞA' THEN 2\n        WHEN 'GÜNDOĞMUŞ' THEN 3\n        WHEN 'ALANYA BÖLGE' THEN 4\n        WHEN 'MANAVGAT' THEN 5\n        WHEN 'SERİK' THEN 6\n        WHEN 'AKSEKİ-İBRADI' THEN 7\n        WHEN 'MANAVGAT BÖLGE' THEN 8\n        WHEN 'DEMRE' THEN 9\n        WHEN 'ELMALI' THEN 10\n        WHEN 'FİNİKE' THEN 11\n        WHEN 'KALKAN' THEN 12\n        WHEN 'KAŞ' THEN 13\n        WHEN 'KEMER' THEN 14\n        WHEN 'KORKUTELİ' THEN 15\n        WHEN 'KUMLUCA' THEN 16\n        WHEN 'BATI' THEN 17\n        WHEN 'AKSU' THEN 18\n        WHEN 'DÖŞEMEALTI' THEN 19\n        WHEN 'KEPEZ' THEN 20\n        WHEN 'KONYAALTI' THEN 21\n        WHEN 'MURATPAŞA' THEN 22\n        WHEN 'METROPOL' THEN 23\n        WHEN 'BURDUR 1. BÖLGE' THEN 24\n        WHEN 'BURDUR 2. BÖLGE' THEN 25\n        WHEN 'BURDUR 3. BÖLGE' THEN 26\n        WHEN 'BURDUR 4. BÖLGE' THEN 27\n        WHEN 'BURDUR' THEN 28\n        WHEN 'ISPARTA 1. BÖLGE' THEN 29\n        WHEN 'ISPARTA 2. BÖLGE' THEN 30\n        WHEN 'ISPARTA 3. BÖLGE' THEN 31\n        WHEN 'ISPARTA 4. BÖLGE' THEN 32\n        WHEN 'ISPARTA' THEN 33\n        WHEN 'AEDAŞ' THEN 34\n        ELSE 99\n    END;",
+    "description": "ilce bazlı",
+    "category": "Genel",
+    "created_at": "2025-10-24T17:56:02.345873",
+    "updated_at": "2025-10-25T21:49:10.135353",
+    "usage_count": 4,
+    "last_used": "2025-10-25T22:21:22.306271"
+  }
+]
